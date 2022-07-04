@@ -25,6 +25,14 @@ int StringToInt(string str)
     ss >> num;
     return num;
 }
+double StringToDouble(string str)
+{
+    stringstream ss;
+    double num;
+    ss << str;
+    ss >> num;
+    return num;
+}
 
 int main()
 {
@@ -37,6 +45,10 @@ int main()
     string c = NumberToString(b);
     cout << c << endl;
 
-    int d = StringToInt("1");
+    int d = StringToInt("1.2");
     cout << d << endl;
+
+    double e = StringToDouble("1.2");
+    cout << e << endl;
+
 }
