@@ -43,50 +43,50 @@ double calcCoDispersion(vector<int> data1, vector<int> data2)
     return sum / data1.size();
 }
 
-vector<double> calcRegressionLine(int data1[], int data2[], int isDebug)
+vector<double> calcRegressionLine(int x[], int y[], int isDebug)
 {
 
-    vector<int> vData1;
-    vector<int> vData2;
+    vector<int> vX;
+    vector<int> vY;
 
     for (int i = 0; i < 5; i++)
     {
-        vData1.push_back(data1[i]);
-        vData2.push_back(data2[i]);
+        vX.push_back(x[i]);
+        vY.push_back(y[i]);
     }
 
-    double data1Average = calcAverage(vData1);
-    double data2Average = calcAverage(vData2);
+    double xAverage = calcAverage(vX);
+    double yAverage = calcAverage(vY);
 
     if (isDebug)
     {
-        cout << "data1 average: " << data1Average << endl;
-        cout << "data1 average: " << data2Average << endl;
+        cout << "data1 average: " << xAverage << endl;
+        cout << "data1 average: " << yAverage << endl;
     }
 
-    vector<int> data1Deviation;
-    vector<int> data2Deviation;
+    vector<int> xDeviation;
+    vector<int> yDeviation;
 
-    data1Deviation = calcDiviation(vData1, data1Average);
-    data2Deviation = calcDiviation(vData2, data2Average);
+    xDeviation = calcDiviation(vX, xAverage);
+    yDeviation = calcDiviation(vY, yAverage);
 
-    double data1Distribution = calcDitribution(vData1, data1Average);
-    double data2Distribution = calcDitribution(vData2, data2Average);
+    double xDistribution = calcDitribution(vX, xAverage);
+    double yDistribution = calcDitribution(vY, yAverage);
 
     if (isDebug)
     {
-        cout << "data1 distribution: " << data1Distribution << endl;
-        cout << "data2 distribution: " << data2Distribution << endl;
+        cout << "data1 distribution: " << xDistribution << endl;
+        cout << "data2 distribution: " << yDistribution << endl;
     }
 
-    double co_dispersion = calcCoDispersion(data1Deviation, data2Deviation);
+    double co_dispersion = calcCoDispersion(xDeviation, yDeviation);
     if (isDebug)
     {
         cout << "co dispersion: " << co_dispersion << endl;
     }
 
-    double a = co_dispersion / data1Distribution;
-    double b = data2Average - a * data1Average;
+    double a = co_dispersion / xDistribution;
+    double b = yAverage - a * xAverage;
     if (isDebug)
     {
 
