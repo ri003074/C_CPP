@@ -3,7 +3,7 @@
 #include <cmath>
 using namespace std;
 
-double calcAverage(vector<int> data)
+double calcAverage(vector<double> data)
 {
     double sum = 0.0;
     for (int i = 0; i < data.size(); i++)
@@ -11,21 +11,21 @@ double calcAverage(vector<int> data)
         sum += data[i];
     }
 
-    return sum / data.size();
+    return sum / double(data.size());
 }
-double calcDitribution(vector<int> data, int avg)
+double calcDitribution(vector<double> data, double avg)
 {
     double sum = 0.0;
     for (int i = 0; i < data.size(); i++)
     {
         sum += pow((data[i] - avg), 2);
     }
-    return sum / data.size();
+    return sum / double(data.size());
 }
 
-vector<int> calcDiviation(vector<int> data, int avg)
+vector<double> calcDiviation(vector<double> data, double avg)
 {
-    vector<int> deviation;
+    vector<double> deviation;
     for (int i = 0; i < data.size(); i++)
     {
         deviation.push_back(data[i] - avg);
@@ -33,23 +33,23 @@ vector<int> calcDiviation(vector<int> data, int avg)
     return deviation;
 }
 
-double calcCoDispersion(vector<int> data1, vector<int> data2)
+double calcCoDispersion(vector<double> data1, vector<double> data2)
 {
     double sum = 0.0;
     for (int i = 0; i < signed(data1.size()); i++)
     {
         sum += data1[i] * data2[i];
     }
-    return sum / data1.size();
+    return sum / double(data1.size());
 }
 
-vector<double> calcRegressionLine(int x[], int y[], int isDebug)
+vector<double> calcRegressionLine(double x[], double y[], int size, int isDebug)
 {
 
-    vector<int> vX;
-    vector<int> vY;
+    vector<double> vX;
+    vector<double> vY;
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < size; i++)
     {
         vX.push_back(x[i]);
         vY.push_back(y[i]);
@@ -64,8 +64,8 @@ vector<double> calcRegressionLine(int x[], int y[], int isDebug)
         cout << "data1 average: " << yAverage << endl;
     }
 
-    vector<int> xDeviation;
-    vector<int> yDeviation;
+    vector<double> xDeviation;
+    vector<double> yDeviation;
 
     xDeviation = calcDiviation(vX, xAverage);
     yDeviation = calcDiviation(vY, yAverage);
@@ -103,10 +103,10 @@ vector<double> calcRegressionLine(int x[], int y[], int isDebug)
 int main()
 {
 
-    int english[] = {50, 60, 70, 80, 90};
-    int math[] = {40, 70, 90, 60, 100};
+    double english[] = {50, 60, 70, 80, 90};
+    double math[] = {40, 70, 90, 60, 100};
 
-    vector<double> result = calcRegressionLine(english, math, true);
+    vector<double> result = calcRegressionLine(english, math, 5, true);
 
     return 0;
 }
