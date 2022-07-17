@@ -100,13 +100,31 @@ vector<double> calcRegressionLine(double x[], double y[], int size, int isDebug)
     return result;
 }
 
+void test_calcRegressionLine(double x[], double y[], int size, double exA, double exB)
+{
+
+    vector<double> result = calcRegressionLine(x, y, size, true);
+    assert(fabs(exA - result[0]) <= 0.0001);
+    assert(fabs(exB - result[1]) <= 0.0001);
+}
+
 int main()
 {
 
-    double english[] = {50, 60, 70, 80, 90};
-    double math[] = {40, 70, 90, 60, 100};
+    double xData1[] = {50, 60, 70, 80, 90};
+    double yData1[] = {40, 70, 90, 60, 100};
+    int size1 = sizeof(xData1) / sizeof(xData1[0]);
+    test_calcRegressionLine(xData1, yData1, size1, 1.1, -5);
 
-    vector<double> result = calcRegressionLine(english, math, 5, true);
+    double xData2[] = {1, 2, 3, 4, 5};
+    double yData2[] = {4, 5, 6, 7, 8};
+    int size2 = sizeof(xData2) / sizeof(xData2[0]);
+    test_calcRegressionLine(xData2, yData2, size2, 1, 3);
+
+    double xData3[] = {83, 71, 64, 69, 69, 64, 68, 59, 81, 91, 57, 65, 58, 62};
+    double yData3[] = {183, 168, 171, 178, 176, 172, 165, 158, 183, 182, 163, 175, 164, 175};
+    int size3 = sizeof(xData3) / sizeof(xData3[0]);
+    test_calcRegressionLine(xData3, yData3, size3, 0.623299, 129.572);
 
     return 0;
 }
