@@ -5,6 +5,8 @@
 // http://www.yamamo10.jp/yamamoto/lecture/2007/5E_comp_app/interpolation/interpolation_html/node4.html
 // https://rikei-logistics.com/lsm
 
+//This program has mistake!!!
+
 #include <iostream>
 #include <vector>
 using namespace std;
