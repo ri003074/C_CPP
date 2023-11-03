@@ -12,7 +12,7 @@ struct pass_info
 
 struct eye_width_info
 {
-    int index_count = 0;
+    int pass_index_count = 0;
     int y_axis_index = 0;
     int x_start_index = 0;
     int x_end_index = 0;
@@ -20,14 +20,13 @@ struct eye_width_info
 
 struct eye_height_info
 {
+    int pass_index_count = 0;
+    int x_axis_index = 0;
     int y_start_index = 0;
     int y_end_index = 0;
-    int index_count = 0;
-    int x_axis_index = 0;
 };
 
-pass_info get_zero_first_last_index(vector<int> data);
-pass_info get_zero_first_last_index(vector<int> data)
+pass_info get_pass_info(vector<int> data)
 {
     string pf = "";
     string pf_check = "";
@@ -43,8 +42,8 @@ pass_info get_zero_first_last_index(vector<int> data)
             pf += "f";
         }
     }
-    pass_info p;
 
+    pass_info p;
     for (int i = 0; i < data.size(); i++)
     {
         int position = pf.find(pf_check);
@@ -60,24 +59,23 @@ pass_info get_zero_first_last_index(vector<int> data)
     return p;
 }
 
-eye_width_info eye_width(vector<vector<int>> data, int start, int stop);
-eye_width_info eye_width(vector<vector<int>> data, int start, int stop)
+eye_width_info get_eye_width(vector<vector<int>> data, int start, int stop)
 {
     eye_width_info ewi;
-    int first_max_eye_width_index_count = 0;
+    int first_max_eye_width_pass_index_count = 0;
     bool pass_start = false;
     vector<int> pass_width;
     for (int i = start; (start > stop ? i > stop : i < stop); i += (start > stop ? -1 : 1))
     {
-        pass_info p = get_zero_first_last_index(data.at(i));
+        pass_info p = get_pass_info(data.at(i));
         pass_width.push_back(p.pass_end_m_pass_start);
         if (p.pass_start_index != 0 && p.pass_end_index != 0)
         {
-            if (first_max_eye_width_index_count < p.pass_end_m_pass_start && p.pass_end_m_pass_start <= data.at(i).size() / 2)
+            if (first_max_eye_width_pass_index_count < p.pass_end_m_pass_start && p.pass_end_m_pass_start <= data.at(i).size() / 2)
             {
                 pass_start = true;
-                first_max_eye_width_index_count = p.pass_end_m_pass_start;
-                ewi.index_count = p.pass_end_m_pass_start;
+                first_max_eye_width_pass_index_count = p.pass_end_m_pass_start;
+                ewi.pass_index_count = p.pass_end_m_pass_start;
                 ewi.x_start_index = p.pass_start_index;
                 ewi.x_end_index = p.pass_end_index;
                 ewi.y_axis_index = i;
@@ -91,9 +89,8 @@ eye_width_info eye_width(vector<vector<int>> data, int start, int stop)
     return ewi;
 }
 
-eye_height_info eye_height(vector<vector<int>> data, eye_width_info ewi)
+eye_height_info get_eye_height(vector<vector<int>> data, eye_width_info ewi)
 {
-
     vector<vector<int>> data_inv;
     for (int j = 0; j < data.at(0).size(); j++)
     {
@@ -121,7 +118,7 @@ eye_height_info eye_height(vector<vector<int>> data, eye_width_info ewi)
 
             if (ewi.y_axis_index >= pass_start && ewi.y_axis_index <= pass_end)
             {
-                ehi.index_count = pass_end - pass_start;
+                ehi.pass_index_count = pass_end - pass_start;
                 ehi.y_start_index = pass_start;
                 ehi.y_end_index = pass_end;
                 ehi.x_axis_index = ewi.y_axis_index;
@@ -210,49 +207,48 @@ int main()
 
     int wave_mode = 0;
     int tmp = -1;
-    for (const auto &[key, value] : trans)
+    for (const auto &item : trans)
     {
-        cout << key << "->" << value << endl;
-        if (tmp < value)
+        cout << item.first << "->" << item.second << endl;
+        if (tmp < item.second)
         {
-            wave_mode = key;
+            wave_mode = item.first;
         }
     }
     cout << "wave mode :" << wave_mode << endl;
     if (wave_mode == 3)
     {
-        eye_width_info ewi_high = eye_width(data, 0, data.size());
-        eye_height_info ehi_high = eye_height(data, ewi_high);
+        eye_width_info ewi_high = get_eye_width(data, 0, data.size());
+        eye_height_info ehi_high = get_eye_height(data, ewi_high);
 
-        cout << "eye upper width   : " << ewi_high.index_count << endl;
+        cout << "eye upper width   : " << ewi_high.pass_index_count << endl;
         cout << "eye upper x start : " << ewi_high.x_start_index << endl;
         cout << "eye upper x end   : " << ewi_high.x_end_index << endl;
         cout << "eye upper y axis  : " << ewi_high.y_axis_index << endl;
-        cout << "eye upper height  : " << ehi_high.index_count << endl;
+        cout << "eye upper height  : " << ehi_high.pass_index_count << endl;
         cout << "eye upper y start : " << ehi_high.y_start_index << endl;
         cout << "eye upper y end   : " << ehi_high.y_end_index << endl;
 
-        eye_width_info ewi_low = eye_width(data, data.size() - 1, 0);
-        eye_height_info ehi_low = eye_height(data, ewi_low);
+        eye_width_info ewi_low = get_eye_width(data, data.size() - 1, 0);
+        eye_height_info ehi_low = get_eye_height(data, ewi_low);
 
-        cout << "eye lower width   : " << ewi_low.index_count << endl;
+        cout << "eye lower width   : " << ewi_low.pass_index_count << endl;
         cout << "eye lower x start : " << ewi_low.x_start_index << endl;
         cout << "eye lower x end   : " << ewi_low.x_end_index << endl;
         cout << "eye lower y axis  : " << ewi_low.y_axis_index << endl;
-        cout << "eye lower height  : " << ehi_low.index_count << endl;
+        cout << "eye lower height  : " << ehi_low.pass_index_count << endl;
         cout << "eye lower y start : " << ehi_low.y_start_index << endl;
         cout << "eye lower y end   : " << ehi_low.y_end_index << endl;
     }
     if (wave_mode == 2)
     {
-        eye_width_info ewi_low = eye_width(data, data.size() - 1, 0);
-        eye_height_info ehi_low = eye_height(data, ewi_low);
-        // cout << "nrz eye: " << eye_width(data, 0, data.size()).index_count << endl;
-        cout << "eye lower width   : " << ewi_low.index_count << endl;
+        eye_width_info ewi_low = get_eye_width(data, data.size() - 1, 0);
+        eye_height_info ehi_low = get_eye_height(data, ewi_low);
+        cout << "eye lower width   : " << ewi_low.pass_index_count << endl;
         cout << "eye lower x start : " << ewi_low.x_start_index << endl;
         cout << "eye lower x end   : " << ewi_low.x_end_index << endl;
         cout << "eye lower y axis  : " << ewi_low.y_axis_index << endl;
-        cout << "eye lower height  : " << ehi_low.index_count << endl;
+        cout << "eye lower height  : " << ehi_low.pass_index_count << endl;
         cout << "eye lower y start : " << ehi_low.y_start_index << endl;
         cout << "eye lower y end   : " << ehi_low.y_end_index << endl;
     }
