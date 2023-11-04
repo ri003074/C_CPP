@@ -43,20 +43,20 @@ pass_info calc_pass_info(vector<int> data)
         }
     }
 
-    pass_info p;
+    pass_info pi;
     for (int i = 0; i < data.size(); i++)
     {
         int position = pf.find(pf_check);
         if (position != -1)
         {
-            p.pass_start_index = position;
-            p.pass_end_index = position + pf_check.length();
-            p.pass_end_m_pass_start = p.pass_end_index - p.pass_start_index;
+            pi.pass_start_index = position;
+            pi.pass_end_index = position + pf_check.length();
+            pi.pass_end_m_pass_start = pi.pass_end_index - pi.pass_start_index;
             break;
         }
         pf_check.pop_back();
     }
-    return p;
+    return pi;
 }
 
 eye_width_info calc_eye_width(vector<vector<int>> data, int start, int stop)
@@ -130,7 +130,7 @@ eye_height_info calc_eye_height(vector<vector<int>> data, eye_width_info ewi)
 
 int get_wave_mode(vector<vector<int>> data)
 {
-    map<int, int> trans;
+    map<int, int> trans_0_to_1;
     for (int x = 0; x < data[0].size(); x++)
     {
         int transition = 0;
@@ -141,19 +141,19 @@ int get_wave_mode(vector<vector<int>> data)
                 transition++;
             }
         }
-        if (trans.find(transition) != trans.end())
+        if (trans_0_to_1.find(transition) != trans_0_to_1.end())
         {
-            trans[transition] += 1;
+            trans_0_to_1[transition] += 1;
         }
         else
         {
-            trans[transition] = 1;
+            trans_0_to_1[transition] = 1;
         }
     }
 
     int wave_mode = 0;
     int tmp = -1;
-    for (const auto &item : trans)
+    for (const auto &item : trans_0_to_1)
     {
         cout << item.first << "->" << item.second << endl;
         if (tmp < item.second)
