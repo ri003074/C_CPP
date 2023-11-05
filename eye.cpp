@@ -1,7 +1,27 @@
 #include <iostream>
+#include <cassert>
 #include <vector>
 #include <map>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
 using namespace std;
+
+vector<string> split(const string &s, char delim)
+{
+    vector<string> elems;
+    stringstream ss(s);
+    string item;
+    while (getline(ss, item, delim))
+    {
+        if (!item.empty())
+        {
+            elems.push_back(item);
+        }
+    }
+    return elems;
+}
 
 struct pass_info
 {
@@ -91,52 +111,44 @@ eye_width_info calc_eye_width(vector<vector<int>> data, int start, int stop)
 
 eye_height_info calc_eye_height(vector<vector<int>> data, eye_width_info ewi)
 {
-    vector<vector<int>> data_inv;
-    for (int j = 0; j < data.at(0).size(); j++)
-    {
-        vector<int> tmp;
-        for (int i = 0; i < data.size(); i++)
-        {
-            tmp.push_back(data[i][j]);
-        }
-        data_inv.push_back(tmp);
-    }
-
     int y_index = (ewi.x_end_index + ewi.x_start_index) / 2;
     int pass_start = 0;
     int pass_end = 0;
     eye_height_info ehi;
-    for (int i = 1; i < data_inv.at(y_index).size(); i++)
+    for (int x = 0; x < data.at(0).size(); x++)
     {
-        if (data_inv.at(y_index).at(i - 1) == 1 && data_inv.at(y_index).at(i) == 0)
+        for (int y = 1; y < data.size(); y++)
         {
-            pass_start = i;
-        }
-        if (data_inv.at(y_index).at(i - 1) == 0 && data_inv.at(y_index).at(i) == 1)
-        {
-            pass_end = i;
-
-            if (ewi.y_axis_index >= pass_start && ewi.y_axis_index <= pass_end)
+            if (data.at(y - 1).at(x) == 1 && data.at(y).at(x) == 0)
             {
-                ehi.pass_index_count = pass_end - pass_start;
-                ehi.y_start_index = pass_start;
-                ehi.y_end_index = pass_end;
-                ehi.x_axis_index = ewi.y_axis_index;
+                pass_start = y;
+            }
+            if (data.at(y - 1).at(x) == 0 && data.at(y).at(x) == 1)
+            {
+                pass_end = y;
+                if (ewi.y_axis_index >= pass_start && ewi.y_axis_index <= pass_end)
+                {
+                    ehi.pass_index_count = pass_end - pass_start;
+                    ehi.y_start_index = pass_start;
+                    ehi.y_end_index = pass_end;
+                    ehi.x_axis_index = ewi.y_axis_index;
+                }
             }
         }
     }
+
     return ehi;
 }
 
-int get_wave_mode(vector<vector<int>> data)
+int calc_wave_mode(vector<vector<int>> data)
 {
     map<int, int> trans_0_to_1;
-    for (int x = 0; x < data[0].size(); x++)
+    for (int x = 0; x < data.at(0).size(); x++)
     {
         int transition = 0;
         for (int y = 1; y < data.size(); y++)
         {
-            if (data[y - 1][x] == 0 && data[y][x] == 1)
+            if (data.at(y - 1).at(x) == 0 && data.at(y).at(x) == 1)
             {
                 transition++;
             }
@@ -167,88 +179,36 @@ int get_wave_mode(vector<vector<int>> data)
 
 int main()
 {
-    vector<int> y_axis;
-    vector<int> x_axis;
-    int a[][30] = {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 3
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 4
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 5
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 6
-        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 7
-        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 8
-        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 9
-        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 10
-        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 11
-        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 12
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 13
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 14
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nrz
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nrz
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nrz
-    };
-
-    /*
-     int a[][30] = {
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 3
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 4
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 5
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 6
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 7
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 8
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 9
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 10
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 11
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 12
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 13
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 14
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 15
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 16
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // 0
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // nrz
-         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // nrz
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // nrz
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // nrz
-         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // nrz
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nrz
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nrz
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nrz
-     };
-    */
-
     vector<vector<int>> data;
-    vector<int> y_axis_pass_count;
-    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
+
+    // ifstream ifs("./nrz.txt");
+    ifstream ifs("./pam3.txt");
+    string str;
+    while (getline(ifs, str))
     {
-        vector<int> tmp;
-        int fail_count = 0;
-        for (int j = 0; j < sizeof(a[0]) / sizeof(a[0][0]); j++)
+        vector<string> tmp = split(str, ' ');
+        vector<int> tmp2;
+
+        for (int i = 0; i < tmp.size(); i++)
         {
-            tmp.push_back(a[i][j]);
-            fail_count += a[i][j];
+            tmp2.push_back(stoi(tmp.at(i)));
         }
-        data.push_back(tmp);
-        y_axis_pass_count.push_back(fail_count);
-    }
-    for (int x = 0; x < data[0].size(); x++)
-    {
-        x_axis.push_back(x * 10);
-    }
-    for (int y = 0; y < data.size(); y++)
-    {
-        y_axis.push_back(y * 5);
+        data.push_back(tmp2);
     }
 
-    int wave_mode = get_wave_mode(data);
+    int wave_mode = calc_wave_mode(data);
     if (wave_mode == 3)
     {
         eye_width_info ewi_high = calc_eye_width(data, 0, data.size());
         eye_height_info ehi_high = calc_eye_height(data, ewi_high);
+
+        assert(ewi_high.pass_index_count == 9);
+        assert(ewi_high.x_start_index == 11);
+        assert(ewi_high.x_end_index == 20);
+        assert(ewi_high.y_axis_index == 7);
+        assert(ehi_high.pass_index_count == 6);
+        assert(ehi_high.y_start_index == 7);
+        assert(ehi_high.y_end_index == 13);
 
         cout << "eye upper width   : " << ewi_high.pass_index_count << endl;
         cout << "eye upper x start : " << ewi_high.x_start_index << endl;
@@ -260,6 +220,13 @@ int main()
 
         eye_width_info ewi_low = calc_eye_width(data, data.size() - 1, 0);
         eye_height_info ehi_low = calc_eye_height(data, ewi_low);
+        assert(ewi_low.pass_index_count == 10);
+        assert(ewi_low.x_start_index == 10);
+        assert(ewi_low.x_end_index == 20);
+        assert(ewi_low.y_axis_index == 18);
+        assert(ehi_low.pass_index_count == 4);
+        assert(ehi_low.y_start_index == 16);
+        assert(ehi_low.y_end_index == 20);
 
         cout << "eye lower width   : " << ewi_low.pass_index_count << endl;
         cout << "eye lower x start : " << ewi_low.x_start_index << endl;
@@ -271,7 +238,6 @@ int main()
     }
     if (wave_mode == 2)
     {
-        // eye_width_info ewi_low = calc_eye_width(data, 0, data.size());
         eye_width_info ewi_low = calc_eye_width(data, data.size() - 1, 0);
         eye_height_info ehi_low = calc_eye_height(data, ewi_low);
         cout << "eye lower width   : " << ewi_low.pass_index_count << endl;
@@ -281,5 +247,12 @@ int main()
         cout << "eye lower height  : " << ehi_low.pass_index_count << endl;
         cout << "eye lower y start : " << ehi_low.y_start_index << endl;
         cout << "eye lower y end   : " << ehi_low.y_end_index << endl;
+        assert(ewi_low.pass_index_count == 9);
+        assert(ewi_low.x_start_index == 11);
+        assert(ewi_low.x_end_index == 20);
+        assert(ewi_low.y_axis_index == 12);
+        assert(ehi_low.pass_index_count == 6);
+        assert(ehi_low.y_start_index == 7);
+        assert(ehi_low.y_end_index == 13);
     }
 }
